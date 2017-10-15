@@ -1,0 +1,139 @@
+1. autowiring just combine classes or sets class objects in another class by automatically 
+2. autowire throw beans 
+
+suppose we have 2 classes WriteToConsole,WriteToLog
+
+public class WriteToConsole{
+	public void write(String text) {
+		System.out.println("write to console : " + text);
+	}
+}
+public class WriteToLog{
+	public void write(String text) {
+		System.out.println("write to log : "+ text);
+	}
+}
+
+and if we want to create a factory Logger 
+public class Logger {
+
+	private WriteToConsole writeToConsole;
+	private WriteToLog writeToLog;
+        //getter and setter 
+        public void writeLog(String text) {
+		writeToLog.write(text);
+	}	
+	public void writeConsole(String text) {
+		writeToConsole.write(text);
+	}
+}
+
+now if we want to print write() function from those classes , 
+
+    public static void main( String[] args )
+    { 	
+    	Logger log = new Logger();
+        WriteToConsole wtc = new WriteToConsole();
+	WriteToLog wtl = new WriteToLog();
+		
+	log.setWriteToConsole(wtc);
+	log.setWriteToLog(wtl);
+		
+	log.writeLog("Hello from Log");
+	log.writeConsole("Hello from Console");
+    }
+
+this is conventional way. 
+
+if we use beans and autowire 
+just define 3 beans for WriteToConsole,WriteToLog and Logger
+and set autowire="byType" from Logger 
+    <bean id="wirtetolog" class="com.spring.Spring1.WriteToLog"></bean>
+	<bean id="writetoconsole" class="com.spring.Spring1.WriteToConsole">
+	</bean>
+	<bean id="logger" class="com.spring.Spring1.Logger" autowire="byType">
+	</bean>
+then no need to set the objects 
+
+        Logger log = (Logger) context.getBean("logger");
+    	log.writeLog("hello");
+    	log.writeConsole("hello console");
+        //here we omit 
+        //log.setWriteToConsole(wtc);
+	//log.setWriteToLog(wtl);
+
+3. autowire="byType" means as we define 2 types in Logger (WriteToConsole wtc,WriteToLog wtl)
+it will automatically wire these 2 objects 
+
+------------------------------------------------------
+
+autowire byName
+
+we can use autowire="byName" 
+here it would work if , 
+parameter of the class and bean id exactly match with eachother . 
+        <bean id="writeToLog" class="com.spring.Spring1.WriteToLog"></bean>
+	<bean id="writeToConsole" class="com.spring.Spring1.WriteToConsole">
+	</bean>
+	<bean id="logger" class="com.spring.Spring1.Logger" autowire="byType">
+	</bean>
+
+and in Logger class 
+        WriteToConsole writeToConsole = new WriteToConsole();
+	WriteToLog writeToLog = new WriteToLog();
+
+here bean id and class parameter exaclty same. so byName would work.
+
+--------------------------------------------------------
+
+autowire="constructor"
+
+autowire constructor internally works autowire="byType"
+so we need to create a constructor which takes exact type. 
+public Logger(WriteToConsole writeToConsole,WriteToLog writeToLog){
+this.writeToConsole = writeToConsole;
+this.writeToLog = writeToLog;
+}
+and bean would be 
+<bean id="logger" class="com.spring.Spring1.Logger" autowire="constructor">
+</bean>
+
+--------------------------------------------------------
+
+autowire annotation 
+
+1. enable context from namespace
+2. from context tab, click on beans , select insert <context:annotation-config> element
+it would add this line 
+<context:annotation-config></context:annotation-config>
+3. now @autowired annotation would work
+4. as Autowired internally works as "byType", then we should add this annotation just before 
+setter. 
+        @Autowired
+	public void setWriteToConsole(WriteToConsole writeToConsole) {
+		this.writeToConsole = writeToConsole;
+	}
+
+	public WriteToLog getWriteToLog() {
+		return writeToLog;
+	}
+
+	@Autowired
+	public void setWriteToLog(WriteToLog writeToLog) {
+		this.writeToLog = writeToLog;
+	}
+-------------------------------------------------------
+we can add @Autowired just before the property/variables 
+        @Autowired
+	private WriteToConsole writeToConsole;
+	@Autowired
+	private WriteToLog writeToLog;
+in this case , we need not to have setters 
+------------------------------------------------------
+we can do this things by constructor 
+
+@Autowired
+public Logger(WriteToConsole writeToConsole,WriteToLog writeToLog){
+this.writeToConsole = writeToConsole;
+this.writeToLog = writeToLog;
+}

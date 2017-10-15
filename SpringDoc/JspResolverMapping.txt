@@ -1,0 +1,42 @@
+suppose our jsp files reside in /WEB-INF/jsp folder 
+
+and our controllers try to map these files through @RequestMapping 
+
+Spring automatically handles internal resource mapping.
+to do that 
+
+we have to create a bean of InternalResourceViewResolver.
+goto bean config file > beans > add new bean > id(JspViewResolver),class org.springframework.web.servlet.view.InternalResourceViewResolver
+now add 2 properties for this bean
+
+insert<property> element > name = prefix, value = /WEB-INF/jsp/(where all jsp reside) 
+insert<property> element > name = suffix, value = .jsp(all jsp files) 
+
+so our bean looks like 
+
+        <bean id="JspViewResolver"
+		class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+	<property name="prefix" value="/WEB-INF/jsp/"></property>
+	<property name="suffix" value=".jsp"></property>
+	</bean>
+
+now if we have a jsp file name "home.jsp" in /WEB-INF/jsp/ directory
+
+and our controller 
+package com.spring.web.controller;
+
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+
+@Controller
+public class NoticesController {
+
+	@RequestMapping("/")
+	public String showHome() {
+		//System.out.println("from controller");
+		return "home";
+	}
+}
+
+then spring automatically go to pefix "/WEB-INF/jsp" folder and search for "home" and display "home.jsp" file by adding suffix. 
+

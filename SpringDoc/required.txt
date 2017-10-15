@@ -1,0 +1,9 @@
+required just make a bean optional. 
+
+@Autowired(required=false)
+public Logger(ConsoleWriter consoleWriter) {
+    this.consoleWriter = consoleWriter;
+}
+
+now bean for ConsoleWriter is optional. 
+if we delete the bean of this class , then no error would be thorwn

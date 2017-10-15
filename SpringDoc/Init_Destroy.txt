@@ -1,0 +1,19 @@
+we can add init and destroy method from bean 
+
+       <bean id="patientId" class="com.spring.Spring1.Patient"
+		destroy-method="onDestroy" init-method="onCreate">
+	</bean>
+
+here onCreate() function would be invoked on creating the bean 
+and onDestroy() invoke while destroying the bean 
+
+we can do this by annotation 
+
+@PostConstruct
+public void onCreate() {
+}
+@Predestroy 
+public void onDestroy() {
+}
+
+thus it work like bean init and destroy.

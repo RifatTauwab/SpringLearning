@@ -1,0 +1,18 @@
+oauth1 : curl --user bob:pa55 https://api.example.com/profile
+oauth2 : curl --get 'https://api.twitter.com/1.1/statuses/show.json' \
+--data 'id=210462857140252672' \
+--header 'Authorization: OAuth oauth_consumer_key="xRhHSKcKLl9VF7fbyP2eEw", 
+oauth_nonce="33ec5af28add281c63db55d1839d90f1", 
+oauth_signature="oBO19fJO8imCAMvRxmQJsA6idXk%3D", 
+oauth_signature_method="HMAC-SHA1", 
+oauth_timestamp="1471026075", 
+oauth_token="12341234-ZgJYZOh5Z3ldYXH2sm5voEs0pPXOPv8vC0mFjMFtG", 
+oauth_version="1.0"'
+
+The nonce is a number we only use once for every request.
+
+in oauth2 , api provider provide some keys or "customer secret" which should be integreted 
+with every request. if any key is malformed , then authentication failed. 
+
+http://blog.restcase.com/restful-api-authentication-basics/
+https://www.oauth.com/oauth2-servers/differences-between-oauth-1-2/

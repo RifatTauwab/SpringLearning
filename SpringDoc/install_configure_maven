@@ -1,0 +1,23 @@
+1 . sudo apt-get install maven
+
+configuratio from STS 
+
+1. in STS , 
+   window > preference > Maven
+   select what you need to have 
+   apply 
+
+2. restart STS 
+
+create new maven project 
+
+1. file > new > other > Maven > Maven project > next > select a archietype(quickstart template) > group id : like package name (com.tauwab.test) ,artifact id : project name like MavenProject > finish
+
+pom.xml :
+
+to add more dependency , jar , use pom file 
+pom = Project Object Model
+
+where pom file downloads all jar dependencies : 
+/home/tauwab/.m2/repository
+

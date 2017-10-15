@@ -1,0 +1,67 @@
+SPring Expression Language 
+
+we can use expression language into bean or annotation, dynamically use reference,use arithematic operations,
+or using concatenation 
+
+a small example 
+
+        <bean id="cat" class="com.spring.Spring1.Cat">
+		<property name="id" value="#{1+1}"></property>
+		<property name="speech" value="#{randomspeech.getText()}"></property>
+	</bean>
+	
+	<bean id="randomspeech" class="com.spring.Spring1.Randomspeech"></bean>
+
+public class Randomspeech {
+	public String getText() {
+		return "hi there";
+	}
+}
+
+here we set values into properties dynamically using #{} SPEL 
+
+----------------------------------------------------------------------
+SPEL with annotation 
+
+to enable annotation instead of bean xml , 
+just click on beans xml
+then click context > select insert <context:component-scan> element
+then <context:component-scan base-package="com.spring.Spring1"></context:component-scan> line would be added 
+
+to create bean 
+just go to the class and add @Component annotation 
+@Component
+public class Cat {
+}
+@Component
+public class Randomspeech {
+}
+
+now bean created successfully. but we need to add properties value by Wiring
+
+        @Autowired
+	public void setId(@Value("#{12+1}") int id) {
+		this.id = id;
+	}
+	@Autowired
+	public void setSpeech(@Value("#{randomspeech.getText()}") String speech) {
+		this.speech = speech;
+	}
+
+here we use Autowiring and add values dynamically by SPEL.
+as there is no ID like we did in beans, so the id of class would be classname where first letter would be lowercase.
+---------------------------------------------------------------------------- 
+
+Handling Null exception 
+if there is any possibility of getting null , then it would create an exception 
+to resolve this 
+ we can use "?"
+        @Autowired
+	public void setId(@Value("#{randomspeech.getText()?.length()}") int id) {
+		this.id = id;
+	}
+	@Autowired
+	public void setSpeech(@Value("#{randomspeech.getText()}") String speech) {
+		this.speech = speech;
+	}
+this will handle null and no error would be thrown.

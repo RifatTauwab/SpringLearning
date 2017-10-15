@@ -1,0 +1,67 @@
+what is dependency injection 
+----------------------------
+1. if one class/object is dependent on another class 
+then we can inject that dependent class to the main class 
+
+suppose , we have a class Patient 
+
+class Patient{
+private int id;
+private String name;
+}
+
+class Address{
+private String Street;
+private String postcode;
+}
+
+now Address class is dependent on Patient class. 
+if Patient does not exist, then Address would be the same. 
+
+how to inject object (Address) into Main class(Patient)
+-------------------------------------------------------
+
+1. add dependent class into bean and add constructor argument 
+    <bean id="addressId" class="com.spring.Spring1.Address">
+		<constructor-arg name="street" value="jatrabari"></constructor-arg>
+		<constructor-arg name="postcode" value="1236"></constructor-arg>
+	</bean>
+	
+	here bean id = addressId. 
+	this id would be required while creating dependency. 
+	
+2. now create an attribute of that dependent class in main class
+if our main cass is "Patient"
+
+class Patient {
+private int id;
+private String name;
+private Address address;
+//getter and setter
+// toString()
+}
+
+3. now add the dependency in beans file 
+click on beans.xml, goto beans 
+right click on Parent class and select "insert<Property> element"
+
+name = address (Patient class attribute name of dependent class)
+ref = addressId (bean id of dependent class/object)
+now the beans would be look like 
+
+    <bean id="patientId" class="com.spring.Spring1.Patient">
+		<constructor-arg name="id" value="0"></constructor-arg>
+		<constructor-arg name="name" value="default name"></constructor-arg>
+		<property name="age" value="30"></property>
+		<property name="address" ref="addressId"></property>
+	</bean>
+
+	<bean id="addressId" class="com.spring.Spring1.Address">
+		<constructor-arg name="street" value="jatrabari"></constructor-arg>
+		<constructor-arg name="postcode" value="1236"></constructor-arg>
+	</bean>
+	
+4. Parent class object initialization is enough to make it runnable
+       Patient patient  = (Patient) context.getBean("patientId");
+       System.out.println(patient);
+4. run the application

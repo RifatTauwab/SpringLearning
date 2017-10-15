@@ -1,0 +1,72 @@
+suppose we have a class Cat 
+
+public class Cat {
+    private int id;
+    private String speech = "Hi i am just a cat";
+
+    public int getId() {
+	return id;
+    }
+    public void setId(int id) {
+	this.id = id;
+    }
+    public String getSpeech() {
+	return speech;
+    }
+    public void setSpeech(String speech) {
+	this.speech = speech;
+    }
+    public void speak() {
+	System.out.println(speech);
+    }
+}
+
+another class HelloCat
+
+public class HelloCat {
+    public static void main(String[] args) {
+        Cat cat = new Cat();
+        cat.setId(123);
+        cat.setSpeech("Hi, I am a fluffy cat");
+        cat.speak();
+}
+
+if we just call the cat class without setting value , then it will just print "Hi i am just a cat"
+and as we set the speech by cat.setSpeech() , 
+then it will print "Hi, I am a fluffy cat"
+
+--------------------------------------------------------------------------------------------------------
+autowiring just do the setting thing. 
+beans create the object and wiring just set the value. 
+
+@Component
+public class Cat {
+	private int id;
+	private String speech = "Hi i am just a cat";
+
+	public int getId() {
+		return id;
+	}
+	@Autowired
+	public void setId(@Value("001") int id) {
+		this.id = id;
+	}
+	public String getSpeech() {
+		return speech;
+	}
+	@Autowired
+	public void setSpeech(@Value("I am a fluffy hulu cat!!!") String speech) {
+		this.speech = speech;
+	}
+	public void speak() {
+		System.out.println(speech);
+	}
+}
+
+        
+another class HelloCat
+
+        ApplicationContext context = new ClassPathXmlApplicationContext("com/spring/Spring1/beans/beans.xml");
+    	Cat cat = (Cat) context.getBean("cat");
+    	cat.speak();
+    	((ClassPathXmlApplicationContext) context).close();

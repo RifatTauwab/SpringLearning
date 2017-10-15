@@ -1,0 +1,64 @@
+Filter : 
+
+1. our all request first comes to dispatcher servlet 
+need to map requests that the DispatcherServlet to handle, by using a URL mapping in the same web.xml file
+2. if we add a filter , then first request comes to filter , then dispatcher 
+request intercepted by filter , execute doFilter() and then forward the chain to dispatcher 
+3. to create a filter file ,
+new > filter > package : com.spring.web.filter ,class: TestFilter.java
+and in WebContent>web.xml , we add 
+  <filter>
+    <display-name>TestFilter</display-name>
+    <filter-name>TestFilter</filter-name>
+    <filter-class>com.spring.web.filter.TestFilter</filter-class>
+  </filter>
+  <filter-mapping>
+    <filter-name>TestFilter</filter-name>
+    <url-pattern>/*</url-pattern>
+  </filter-mapping>
+urt-patter /* means filter works on root .
+----------------------------------------------------------------
+Add Spring Security Filter 
+
+1. from pox xml , import some depedencies 
+spring-security-core
+spring-security-web
+spring-security-config
+
+                <dependency>
+			<groupId>org.springframework.security</groupId>
+			<artifactId>spring-security-core</artifactId>
+			<version>3.2.10.RELEASE</version>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.security</groupId>
+			<artifactId>spring-security-web</artifactId>
+			<version>3.2.10.RELEASE</version>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.security</groupId>
+			<artifactId>spring-security-config</artifactId>
+			<version>3.2.10.RELEASE</version>
+		</dependency>
+2. create a spring bean config file for security like "security-cotext.xml"
+3.from namespapce , enable "security"
+4. from web.xml , just configure again this bean config file 
+     <param-value>
+          classpath:com/spring/web/config/dao-context.xml
+          classpath:com/spring/web/config/service-context.xml
+          classpath:com/spring/web/config/security-context.xml
+      </param-value>
+5. create filter class 
+New > filter > Use Existing Filter class > add org.springframework.web.filter.DelegatingFilterProxy
+6. the filter configuration will be 
+  <filter>
+    <display-name>SpringSecurityFilterChain</display-name>
+    <filter-name>SpringSecurityFilterChain</filter-name>
+    <filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
+  </filter>
+  <filter-mapping>
+    <filter-name>SpringSecurityFilterChain</filter-name>
+    <url-pattern>/*</url-pattern>
+  </filter-mapping>
+
+7. we named this filter as SpringSecurityFilterChain  and further spring use this name to work with filter 

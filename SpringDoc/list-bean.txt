@@ -1,0 +1,60 @@
+https://www.youtube.com/watch?v=FDIFyNs30zA&list=PLj4lst0P2FyWjPZWaSnzFSD_IhYug5J_I&index=15
+
+we can add list of beans 
+1. create a class like EmergencyContacts
+
+public class EmergencyContacts {
+	private String name;
+	private String phone;
+        //getter and setter
+        // toString
+}
+we want to create a list of contacts of Hospitals 
+
+public class Hospitals {
+	private List<EmergencyContacts> contacts;
+
+	public Hospitals() {
+	}
+        //getter and setter
+}
+
+2. create a bean of Hospital 
+<bean id="hospitalId" class="com.spring.Spring1.Hospitals"></bean>
+3. create bean for EmergencyContacts
+suppose we create 3 beans for 3 differnt hospital 
+        <bean id="contact1" class="com.spring.Spring1.EmergencyContacts">
+		<property name="name" value="Dhaka Medical"></property>
+		<property name="phone" value="0164588646"></property>
+	</bean>
+	<bean id="contact2" class="com.spring.Spring1.EmergencyContacts">
+		<property name="name" value="Square"></property>
+		<property name="phone" value="0164588647"></property>
+	</bean>
+	<bean id="contact3" class="com.spring.Spring1.EmergencyContacts">
+		<property name="name" value="BSMMU"></property>
+		<property name="phone" value="0164588648"></property>
+	</bean>
+
+4. to add these beans in another bean 
+click on bean class, Hospital class 
+select Insert <property> element > create a property for contacts 
+click on property > insert <list> element > insert <ref> element > now add all beans(contact1,contact...)
+
+       <bean id="hospitalId" class="com.spring.Spring1.Hospitals">
+		<property name="contacts">
+			<list>
+			
+		<ref bean="contact1" />
+		<ref bean="contact2" />
+		<ref bean="contact3" />
+		</list>
+		</property>
+		
+	</bean>
+
+5. to call 
+        Hospitals hospital = (Hospitals) context.getBean("hospitalId");
+    	for(EmergencyContacts contact:hospital.getContacts()){
+    		System.out.println(contact);
+    	}

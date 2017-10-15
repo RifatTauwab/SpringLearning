@@ -1,0 +1,32 @@
+we have to create DAO layer for all sql operation 
+
+suppose our all dao code reside in com.spring.web.dao package 
+
+to create beans for all dao, we have to create bean config file 
+and these config file should be configured from web.xml 
+
+to do that , 
+1. we create dao-config.xml bean config file in com.spring.web.config package 
+2. from dao-config.xml , we need to enable context namespace 
+3. from context , just enable "anotation-config" and "component-scan"
+4. from component-scan, just provide base-package : com.spring.web.dao where all dao code reside 
+
+
+and configure this bean config file from web.xml 
+
+1. we have to add "org.springframework.web.context.ContextLoaderListener" this listener class 
+<listener>
+      <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
+</listener>
+2. and then add context param 
+so over all our change in web.xml is 
+
+  <listener>
+      <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
+  </listener>
+  <context-param>
+      <param-name>contextConfigLocation</param-name>
+      <param-value>
+          classpath:com/spring/web/config/dao-config.xml
+      </param-value>
+  </context-param>

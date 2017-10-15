@@ -1,0 +1,49 @@
+we can define a object throw bean definition 
+
+        <bean id="wirtetolog" class="com.spring.Spring1.WriteToLog"></bean>
+	<bean id="writetoconsole" class="com.spring.Spring1.WriteToConsole"></bean>
+	<bean id="logger" class="com.spring.Spring1.Logger"></bean>
+
+we can do it automatically by annotation 
+
+to do it ,
+1. click on 
+beans > context > select beans(right click on beans) > select insert<context:component-scan> element
+2. click on component-scan > give base package (com.spring.Spring1,where all java code reside) and save
+
+to define class : 
+
+as we have 3 classes in beans , so we need to add 3 classes from annotation
+for Logger,WriteToConsole and WriteToLog class 
+
+import org.springframework.stereotype.Component;
+
+@Component
+public class Logger {
+}  
+@Component
+public class WriteToConsole implements LogWriter {
+}
+@Component
+public class WriteToLog implements LogWriter{
+}
+
+3. we can add class ID 
+
+@Component("writetolog")
+public class WriteToLog implements LogWriter{
+}
+
+and to wire these WriteToConsole and WriteToLog from Logger 
+
+        @Inject
+	public void setWriteToConsole(WriteToConsole writeToConsole) {
+		this.writeToConsole = writeToConsole;
+	}
+	@Inject
+	@Named(value="writetolog")
+	public void setWriteToLog(WriteToLog writeToLog) {
+		this.writeToLog = writeToLog;
+	}
+
+4. if component name doesn't match , then it will throw an error 

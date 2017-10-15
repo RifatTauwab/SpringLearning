@@ -1,0 +1,21 @@
+1. download bootstrap , and extract , found dist folder 
+
+2. goto spring project > webContent 
+3. create folder "resources/bootstrap"
+4. copy and paste all folder from bootstrap dist folder to "resources/bootstrap" 
+5. we need to map actual resource directory with static 
+6. goto dispatcher-servlet.xml (from WEB-INF)> mvc > enable <mvc:resources> element
+7. from mvc:resources , add location : /resources/ , mapping : /static/**
+as webContent is root directory for resources , so we use "/"
+now after mapping ,spring convert /resources/bootstrap to /static/bootstrap
+
+8. goto jsp file , and add 
+<link href="${pageContext.request.contextPath}/static/bootstrap/css/bootstrap.css"
+	rel="stylesheet" type="text/css" />
+
+here we use /static , not /resource , though our actual path is /resources , because spring 
+now map /resources with /static , and thus no one knows about the actual path from outside
+
+9. and everything would be in 
+<div class="container">
+</div>

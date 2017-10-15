@@ -1,0 +1,65 @@
+JNDI = Java Naming and Directory Interface
+naming service--the means names are associated with objects
+
+safer alternative of properties file that have jdbc connection info or exposing database connection info.
+Java EE app server needs to know only JNDI name, not necessary to know credentials for accessing a production database.
+
+to enable jndi sql connection in spring 
+
+1. go to context.xml file of tomcat server
+we can go from STS ide , just expand "Server" and open context.xml 
+2. add below lines for configuration of mysql connection 
+
+<Resource name="jdbc/spring" auth="Container" type="javax.sql.DataSource"
+    maxTotal="100" maxIdle="30" maxWaitMillis="10000"
+    username="root" password="password" driverClassName="com.mysql.jdbc.Driver"
+    url="jdbc:mysql://localhost:3306/springtutorial"/>
+
+here name="jdbc/spring" (we can named it according to our choice) is very important as 
+our project will search the connection by looking up using this name 
+
+3. now go to the project web.xml and add below config 
+  <description>MySQL Database Connection</description>
+  <resource-ref>
+      <description>DB Connection</description>
+      <res-ref-name>jdbc/spring</res-ref-name>
+      <res-type>javax.sql.DataSource</res-type>
+      <res-auth>Container</res-auth>
+  </resource-ref>
+this configuration sync our project with server. 
+4. include mysql-connector dependency 
+<dependency>
+    <groupId>mysql</groupId>
+    <artifactId>mysql-connector-java</artifactId>
+    <version>6.0.6</version>
+</dependency>
+5. add the mysql-connector jar into tomcat lib directory 
+pivotal-tc-server-developer-3.2.0.RELEASE\tomcat-8.5.4.B.RELEASE\lib
+
+now our project can use JNDI to connect database 
+
+test
+
+<%@ page language="java" contentType="text/html; charset=ISO-8859-1"
+    pageEncoding="ISO-8859-1"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/sql" prefix="sql" %>
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<title>Sql Test</title>
+</head>
+<body>
+    <sql:query var="rs" dataSource="jdbc/spring">
+        select id, name, email from notices
+    </sql:query>
+    <c:forEach var="row" items="${rs.rows}">
+        id : ${row.id}<br/>
+        name : ${row.name}<br/>
+        email : ${row.email }<br/>
+    </c:forEach>
+</body>
+</html>
+
+Reference Link : https://tomcat.apache.org/tomcat-8.0-doc/jndi-datasource-examples-howto.html

@@ -1,0 +1,33 @@
+to wire objects , we know Autowire and Resource works perfectly . 
+
+we can use Inject annotation to do it. 
+to use Inject , we need to add Inject(javax.inject) dependency 
+
+    <dependency>
+    	<groupId>javax.inject</groupId>
+    	<artifactId>javax.inject</artifactId>
+    	<version>1</version>
+    </dependency>
+add above into pom.xml
+
+2. now we have 4 beans , 2 beans from same class 
+
+        <bean id="wirtetolog" class="com.spring.Spring1.WriteToLog"></bean>
+	<bean id="writetoconsole1" class="com.spring.Spring1.WriteToConsole"></bean>
+        <bean id="writetoconsole2" class="com.spring.Spring1.WriteToConsole"></bean>
+	<bean id="logger" class="com.spring.Spring1.Logger"></bean>
+
+if we want to wire beans into logger, then 
+
+        @Inject
+        @Named(value ="writetoconsole1")
+        public void setWriteToConsole(WriteToConsole writeToConsole) {
+		this.writeToConsole = writeToConsole;
+	}
+        @Inject
+	public void setWriteToLog(WriteToLog writeToLog) {
+		this.writeToLog = writeToLog;
+	}
+
+thus it will work. 
+if there is no ambiguity, then onle @Inject works fine. 

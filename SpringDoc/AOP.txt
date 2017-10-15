@@ -1,0 +1,243 @@
+AOP - Aspect Oriented Programming 
+
+suppose we have a class Camera.java
+here we have a function TakePhoto()
+
+now if we want to do some work before or after execution this function 
+like , 
+if we want to check Camera Settings before take a photo 
+then we can create another function checkCamera() in another class 
+
+AOP helps us to execute this checkCamera() function before executing TakePhoto()
+without changing any of our code . 
+
+how to do that : 
+
+1. add aspect dependency 
+    <dependency>
+  	<groupId>org.springframework</groupId>
+  	<artifactId>spring-aspects</artifactId>
+  	<version>3.2.12.RELEASE</version>
+    </dependency>
+
+2. and other supporting dependencies 
+
+    <dependency>
+    	<groupId>org.springframework</groupId>
+    	<artifactId>spring-core</artifactId>
+    	<version>3.2.18.RELEASE</version>
+    </dependency>
+    <dependency>
+    	<groupId>org.springframework</groupId>
+    	<artifactId>spring-beans</artifactId>
+    	<version>3.2.18.RELEASE</version>
+    </dependency>
+    <dependency>
+    	<groupId>org.springframework</groupId>
+    	<artifactId>spring-context</artifactId>
+    	<version>3.2.18.RELEASE</version>
+    </dependency>
+
+3. create a Camera class and add function TakePhoto()
+public class Camera {	
+	public void TakePhoto() {
+		System.out.println("clicked[abc.jpg]");
+	}
+}
+
+4. now create an Aspect class which will be treated as Aspect ,means where supporting functions reside 
+public class Aspect {
+
+	public void checkCamera() {
+		System.out.println("Cameria all ok ... [message from aspect]");
+	}
+}
+
+5. now configuration 
+create 2 beans for Camera(camera) and Aspect(aspect)
+
+<bean id="camera" class="com.spring.aop.aop.Camera"></bean>
+<bean id="aspect" class="com.spring.aop.aop.Aspect"></bean>
+
+6. from namespace , enable aop
+7. from aop > beans > insert<aop:config> element
+8. from config > insert <aop:pointcut> element
+
+Advice – Indicate the action to take either before or after the method execution.
+Pointcut – Indicate which method should be intercept, by method name or regular expression pattern.
+Advisor – Group ‘Advice’ and ‘Pointcut’ into a single unit, and pass it to a proxy factory object.
+
+9. as we need to specify which function needs to be intercepted(point cut) , then ,
+from aop>beans>config>pointcut > id: TakePhotoPointCut, execution(void com.spring.aop.aop.Camera.TakePhoto())
+here in execution we defined the specific pointcut(intercepted) function
+
+10. now we need to define which class and function intercepts the pointcut function and when it would be happed. 
+aop>config>insert <aop:aspect> element > id : Aspect , ref : Aspect class bean id(aspect,as we define Aspect class bean name = aspect) 
+
+11. from aop>config>aspect>insert <aop:before> element (as we want to intercept the function before execution) 
+from <aop:before>element > method:checkCamera , pointcut-ref: TakePhotoPointCut (as checkCamera intercept pointcut TakePhoto())
+
+so our bean config file 
+
+        <bean id="camera" class="com.spring.aop.aop.Camera"></bean>
+	<bean id="aspect" class="com.spring.aop.aop.Aspect"></bean>
+	<aop:config>
+		<aop:pointcut
+			expression="execution(void com.spring.aop.aop.Camera.TakePhoto())"
+			id="TakePhotoPointCut" />
+		<aop:aspect ref="aspect" id="Aspect">
+			<aop:before method="checkCamera"
+				pointcut-ref="TakePhotoPointCut" />
+		</aop:aspect>
+	</aop:config>
+
+we can define pointcut in aspect itself 
+
+                <aop:aspect ref="aspect" id="Aspect">
+			<aop:before method="checkCamera"
+				pointcut="execution(void com.spring.aop.aop.Camera.TakePhoto())" />
+		</aop:aspect>
+
+
+How does Spring work : 
+
+when spring tries to load the config bean file , then spring create a proxy class and inject the 
+aspect codes into it. and then it returns the object to us.
+------------------------------------------------------------------------------------------------
+
+we can create AOP without xml based configuration 
+to do that , 
+
+1. from beans.xml>aop>beans enable aspectj-autoproxy 
+2. from beans.xml>context enable annotation-config and component-scan
+3. in component-scan, base-class : com.spring.web.aop
+4. add @Component in all class 
+@Component
+public class Camera {}
+@Component
+public class Logger{}
+5. as Logger class in Aspect class , then we need to add @Aspect
+@Aspect
+@Component
+public class Logger {}
+6. as our "advice" would be "before" and method checkCamera()
+then add @before before that function 
+
+        @Before("execution(void com.spring.aop.aop.Camera.TakePhoto())")
+	public void checkCamera() {
+		System.out.println("Cameria all ok ... [message from aspect]");
+	}
+
+full Aspect class would be
+
+@Aspect
+@Component
+public class Logger {
+
+    @Before("execution(void com.spring.aop.aop.Camera.TakePhoto())")
+	public void checkCamera() {
+		System.out.println("Cameria all ok ... [message from aspect]");
+	}
+}
+
+or we can do this separately 
+
+@Aspect
+@Component
+public class Logger {
+	
+	@Pointcut("execution(void com.spring.aop.aop.Camera.TakePhoto())")
+	public void TakePhoto(){}
+
+        @Before("TakePhoto()")
+	public void checkCamera() {
+		System.out.println("Cameria all ok ... [message from aspect]");
+	}
+} 
+
+create a dummy function and annotate it with pointcut function
+
+--------------------------------------------------------------------------------
+
+AOP confusions : 
+
+1. normally spring create a bean for a class 
+if we print a bean class 
+Camera camera = (Camera) context.getBean("camera");
+System.out.println(camera.getClass());
+then output would be : class com.spring.aop.aop.Camera
+2. if we implement AOP , then spring creates a proxy class 
+and output would be 
+class com.spring.aop.aop.Camera$$EnhancerBySpringCGLIB$$2ee7f5
+(to enable create proxy, we enable aspectj-autoproxy from aop beans)
+3. actually for AOP , spring creates 2 classes, one is normal class , another is proxy class 
+to examine it : 
+if we create a constructor ,
+public Camera(){
+    System.out.println("constructor created");
+} 
+then we get output : 
+constructor created 
+constructor created 
+
+1st constructor for normall bean class 
+2nd is proxy bean class 
+
+4. Now if we implement an interface from TestCamera class 
+
+@Component
+public class TestCamera implements TestInterface{
+}
+
+now if we run this program , we get error 
+Exception in thread "main" java.lang.ClassCastException: com.sun.proxy.$Proxy11 cannot be cast to com.spring.aop.aop.TestCamera
+
+com.sun.proxy.$Proxy11 is a interface proxy class , not class proxy class 
+as this class TestCamera implements Interface , now spring creates interface proxy class (can only proxy interfaces)
+This means that,
+dynamically created type $Proxy11 will implement TestInterface (as TestCamera implement this interface)
+But $Proxy is not subclass of TestCamera($Proxy11 is a subclass of interface TestInterface) 
+
+(we know , if B is a subclass of A, B extends A, then 
+A a = (B) new B(); is possible)
+so Proxy11 is subclass of TestInterface but not subclass of TestCamera, then 
+TestInterface test = (TestCamera) context.getBean("testCamera"); -- > gives error
+TestInterface test = (TestInterface) context.getBean("testCamera"); --> gives output 
+
+5. to resolve this issue , 
+from beans.xml > aop > beans > aspectj-autoproxy > proxy-target-class: true 
+in our bean config file, it would be 
+<aop:aspectj-autoproxy proxy-target-class="true"></aop:aspectj-autoproxy>
+
+thus it will create a proxy class that is subclass of TestCamera  
+
+6. As com.sun.proxy.$Proxy11 is a subclass of Interfaces, then we can run this program 
+without <aop:aspectj-autoproxy proxy-target-class="true"></aop:aspectj-autoproxy>. 
+just create a method in TestInterfaceinterface and implement that method in TestCamera, 
+then it shoul work by 
+TestInterface test = (TestInterface) context.getBean("testCamera");
+
+*********************************************************************
+public interface TestInterface {
+	public void TestFunc();
+}
+
+@Component
+public class TestCamera implements TestInterface{
+	public void TestFunc() {
+		System.out.println(this.getClass());
+	}	
+}
+
+from App class 
+TestInterface test = (TestInterface) context.getBean("testCamera");
+System.out.println(test.getClass()+ "\ninstance of : "+(test instanceof TestCamera));
+test.TestFunc();
+***********************************************************************
+
+
+PointCut Definition = PCD 
+PCD : execution(runs on method) , within(runs on class) , this(run on Interface), bean(bean name),arg(),args(int,double),annotation()
+** proxy mechanism 
+http://spring.io/blog/2007/07/19/debunking-myths-proxies-impact-performance/
+https://docs.spring.io/spring/docs/3.0.0.M3/reference/html/ch08s06.html

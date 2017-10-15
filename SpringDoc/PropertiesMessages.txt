@@ -1,0 +1,50 @@
+we normally add error messages from java codes. but we can do it from properties file to make the code cleaner. 
+
+@NotBlank(message="Username cannot be blank")
+we can read this message from propertieis file .
+
+to do it with spring : 
+
+1. create package com.spring.web.properties
+2. create  properties file (strings.properties) in this package.
+3. goto dispatcher-servlet.xml (notices-servlet.xml)
+4. beans > beans > new bean > id : messageSource ,class : org.springframework.context.support.ResourceBundleMessageSource
+we must keep exact this id. if this id is not same , then spring could not find the properties file and then will 
+display its default messages.
+5. from messageSource bean, insert <property> element > name: basename , value : com.spring.web.properties.strings
+we just point out our properties file here 
+6. we need to add messages in properties file 
+suppose we have 
+
+public class User { 
+    @ValidEmail(message="this email does not seem a valid email")
+    private String email;
+}
+so we need to follow spring convention to add message 
+we add in strings.properties file 
+
+ValidEmail.user.email = this email does not seem a valid email
+
+7. and we remove message from java class 
+public class User { 
+    @ValidEmail
+    private String email;
+}
+
+Spring will automatically add this message from properties file 
+
+------------------------------------------------------------------
+Add properties message into jsp ,javascript 
+
+1. we add a message into strings.properties
+UnmatchedPassword.user.password = Passwords must match!!
+2. now add <fmt> tag support in jsp file 
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+3. now we can add property messages 
+<script>
+password1.setCustomValidity("<fmt:message key='UnmatchedPassword.user.password' />"); 
+</sfript>
+
+or only 
+<fmt:message key='UnmatchedPassword.user.password' />
+-------------------------------------------------------------------

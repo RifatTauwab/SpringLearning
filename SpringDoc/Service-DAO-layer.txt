@@ -1,0 +1,74 @@
+1. DAO - Data Access Object 
+All CRUD operation, sql , list manipulation everything would be done in DAO layer
+
+2. Service Layer
+get data from Dao and pass the data to controller , no CRUD operation here 
+
+3. Controller 
+Controller class calls the service to get data and pass the data to view 
+
+4. View 
+view gets the data from controller and display
+
+---------------------------------------------------------------------------------------
+1. we create a package for dao , com.spring.web.dao
+here we create 
+table property class 
+and table CRUD operation class 
+suppose our table = Notice
+so we create Notice.java and NoticeDao.java 
+
+2. create a bean configuration file for Dao
+suppose we crearte dao-context.xml file in com.spring.web.config package 
+in bean file, enable context,from context enable <annotation-config> and <component-scan>
+from <component-scan> we must add base-packeg = com.spring.web.dao
+
+3. we must add this bean config in web.xml 
+  <context-param>
+      <param-name>contextConfigLocation</param-name>
+      <param-value>
+          classpath:com/spring/web/config/dao-context.xml
+      </param-value>
+  </context-param>
+------------------------------------------------------------------------------------------
+1. create a service class for Notice , NoticesService.java in com.spring.web.service
+2. add annotation @service 
+3. here as we only get data from dao , we must create setter for NoticeDao and @Autowire it to set 
+4. just create the required get() functions 
+5. create a bean configuration file(same as dao)
+6. must add this bean config in web.xml
+  <context-param>
+      <param-name>contextConfigLocation</param-name>
+      <param-value>
+          classpath:com/spring/web/config/dao-context.xml
+          classpath:com/spring/web/config/service-context.xml
+      </param-value>
+  </context-param>
+-----------------------------------------------------------------------------------------
+1. in controller , we must create a setter for NoticeService class as we need to get data using its object
+and @Autowire it to set. 
+2. 
+        @Autowired
+	public void setNoticesService(NoticesService noticesService) {
+		this.noticesService = noticesService;
+	}
+	@RequestMapping("/ServiceDao")
+	public String ServiceDao(Model model) {
+		List<Notice> notices = noticesService.getNotices();
+		model.addAttribute("notices",notices);
+		return "ServiceDao";
+	}
+
+get data from service , set data into model object , provide key-value and goto the specific view. 
+--------------------------------------------------------------------------------------------
+1. in view , we fetch the data from controller 
+<html>
+<body>
+    <c:forEach var="notice" items="${notices}">
+        id : ${notice.id}<br/>
+        name : ${notice.name}<br/>
+        email : ${notice.email }<br/>
+        text : ${notice.text }<br/>
+    </c:forEach>
+</body>
+</html>

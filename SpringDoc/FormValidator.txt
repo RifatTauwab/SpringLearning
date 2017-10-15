@@ -1,0 +1,222 @@
+xto add form validation support 
+
+1. add dependency 
+
+<dependency>
+	<groupId>javax.validation</groupId>
+	<artifactId>validation-api</artifactId>
+	<version>1.1.0.Final</version>
+</dependency>
+<dependency>
+	<groupId>org.hibernate</groupId>
+	<artifactId>hibernate</artifactId>
+	<version>3.5.4-Final</version>
+	<type>pom</type>
+</dependency>
+<dependency>
+	<groupId>org.hibernate</groupId>
+	<artifactId>hibernate-validator</artifactId>
+	<version>5.4.1.Final</version>
+</dependency>
+
+now our project is ready to validate 
+
+2. now we add rules 
+    public class Notice {
+
+	private int id;
+
+	@Size(min=5,max=100)
+	private String name;
+	
+	@NotNull
+	@Pattern(regexp=".*\\@.*\\..*",message="Not a valid email address")
+	private String email;
+	
+	@Size(min=10,max=200,message="notice must be 10 to 200 characters")
+	private String text;
+	
+	public Notice() {
+	}
+        //getter setter
+    }
+
+3. and validation looks like 
+        @RequestMapping(value="/CreateNotice",method=RequestMethod.POST)
+	public String CreateNoticePOST(Model model, @Valid Notice notice, BindingResult result) {
+		if(result.hasErrors()) {
+			List<ObjectError> errors = result.getAllErrors(); 
+			for(ObjectError e:errors) {
+				System.out.println(e.getDefaultMessage());
+			}
+		}
+		else {
+			System.out.println("form validated");
+		}
+		System.out.println(notice);
+		return "Messages";
+	}
+
+we must add @valid annotation to valid class property 
+and bindingresult helps us to get result information 
+
+
+we can add some functionality in jsp like 
+   * if any error occurs , then we remain the same page 
+     if we forward to the same page again , all previous set values are vanished 
+   *. we want to display error message in jsp page 
+
+to do that 
+1. we must import 
+<%@ taglib prefix="sf" uri="http://www.springframework.org/tags/form"%>
+this taglib supported from spring 
+2. add spring created bean name for specific class where all rules defined 
+
+<sf:form class="form-horizontal"
+    action="${pageContext.request.contextPath}/CreateNotice" method="get" 
+        commandName="notice">
+
+here commandName="notice" indicates the created bean
+
+and this bean passes from, 
+
+        @RequestMapping("/NoticeForm")
+	public String NoticeForm(Model model) {
+		model.addAttribute(new Notice());
+		return "CreateNotice";
+	}
+
+2. change all the input field like 
+
+<!-- Text input-->
+<div class="form-group">
+	<label class="col-md-4 control-label" for="name">Name</label>
+	<div class="col-md-6">
+	    <sf:input id="name" path="name" name="name" type="text"
+		placeholder="enter name" class="form-control input-md" />
+	</div>
+</div>
+
+3. to display errors , we just add every input field 
+
+<sf:errors path="name" cssClass="alert-danger"></sf:errors>
+(cssClass="alert-danger" is bootstrap convention to style error message) 
+
+thus our last input div would be 
+<!-- Text input-->
+    <div class="form-group">
+	<label class="col-md-4 control-label" for="name">Name</label>
+	<div class="col-md-6">
+		<sf:input id="name" path="name" name="name" type="text"
+			placeholder="enter name" class="form-control input-md" />
+		<sf:errors path="name" cssClass="alert-danger"></sf:errors>
+	</div>
+    </div>
+
+here path="name" name="name" must be the same as 
+class Notice {
+    private String name;
+    //..............
+}
+
+------------------------------------------------------------------------------------------
+
+Suppose we want to create an annotation @ValidEmail , that will check if the given email is valid or not 
+to do that ,
+
+1. create a new package "com.spring.web.validation" 
+2. create an interface ValidEmail.java 
+3. if we want to see other annotation codes , suppose we want to create an annotation like @Size annotation 
+hold ctrl + click on @Size annotation .then the code will be opened 
+4. copy and paste the code into ValidEmail.java interface 
+
+|***********************************************************************************|
+
+package com.spring.web.validation;
+
+import java.lang.annotation.Documented;
+import java.lang.annotation.Retention;
+import java.lang.annotation.Target;
+import javax.validation.Constraint;
+import javax.validation.Payload;
+
+import static java.lang.annotation.ElementType.ANNOTATION_TYPE;
+import static java.lang.annotation.ElementType.CONSTRUCTOR;
+import static java.lang.annotation.ElementType.FIELD;
+import static java.lang.annotation.ElementType.METHOD;
+import static java.lang.annotation.ElementType.PARAMETER;
+import static java.lang.annotation.RetentionPolicy.RUNTIME;
+
+
+@Target({ METHOD, FIELD, ANNOTATION_TYPE, CONSTRUCTOR, PARAMETER }) //in which field we want to apply this annotation
+@Retention(RUNTIME)
+@Documented
+@Constraint(validatedBy = {com.spring.web.validation.ValidEmailImpl.class}) //this interface implementation class 
+public @interface ValidEmail {
+
+	String message() default "not a valid email address"; //default message if validation false 
+
+	Class<?>[] groups() default { };
+
+	Class<? extends Payload>[] payload() default { };
+
+	
+	int min() default 6; //defalut email min length 
+
+	/**
+	 * @return size the element must be lower or equal to
+	 */
+	int max() default Integer.MAX_VALUE;
+
+}
+|****************************************************************************************|
+
+5. now we create an implementation class VAlidEmailImpl.java in same package (com.spring.web.validation)
+to implement this ValidEmail interface, we can not directly implement it . 
+we have to implement it through ConstraintValidator 
+|****************************************************************************************|
+package com.spring.web.validation;
+import javax.validation.ConstraintValidator;
+import javax.validation.ConstraintValidatorContext;
+import org.apache.commons.validator.routines.EmailValidator;
+public class ValidEmailImpl implements ConstraintValidator<ValidEmail, String>{
+	private int min;	
+	@Override
+	public void initialize(ValidEmail constraintAnnotation) {
+		min = constraintAnnotation.min();		
+	}
+	@Override
+	public boolean isValid(String email, ConstraintValidatorContext context) {
+		// TODO Auto-generated method stub
+		if(email.length() < min) {
+			return false;
+		}
+		if(!EmailValidator.getInstance(false).isValid(email)) {
+			return false;
+		}
+		return false;
+	}
+}
+|*************************************************************************************|
+
+here , this EmailValidator comes from 
+    <dependency>
+	<groupId>commons-validator</groupId>
+	<artifactId>commons-validator</artifactId>
+	<version>1.4.0</version>
+    </dependency>
+
+now we can use this annotation 
+
+import com.spring.web.validation.ValidEmail;
+public class Notice {
+	private int id;
+	@Size(min=5,max=100)
+	private String name;	
+	@NotNull
+	//@Pattern(regexp=".*\\@.*\\..*",message="Not a valid email address")
+	@ValidEmail
+	private String email;	
+	@Size(min=10,max=200,message="notice must be 10 to 200 characters")
+	private String text;
+}

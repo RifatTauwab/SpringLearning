@@ -1,0 +1,48 @@
+we can pass data through Session but we have an alternative ways 
+
+ModelAndView
+
+to do this , 
+our controller would be like 
+
+        @RequestMapping("/ModelAndView")
+	public ModelAndView TestModelAndView() {
+		ModelAndView mv = new ModelAndView("home");
+		Map<String,Object> model = mv.getModel();
+		model.put("name","Rifat");
+		return mv;
+	}
+
+to get data from jsp , 
+for session it gets data through session object 
+
+but for ModelAndView , it gets data from request object 
+
+for jsp 
+<body>
+Session :  <%= session.getAttribute("name") %> <br />
+ModelAndView : <%= request.getAttribute("name") %> <br />
+Model(using SPEL) : ${name} <br />
+</body>
+
+Model
+
+we can pass data through only model
+to do this 
+
+        @RequestMapping("/Model")
+	public String TestModel(Model model) {
+		model.addAttribute("name","Model Tauwab");
+		return "home";
+	}
+
+Cons 
+
+it is a bad practice to use these ways .
+because , if we set 
+
+model.addAttribute("name","<b>Model Tauwab</b>");
+then in jsp it will render <b> tag. so we can use tag inside the "". it is not safe because others can inject something 
+or js injection 
+
+to avoid this , we can use JSTL <c:out value="${name}"></c:out>

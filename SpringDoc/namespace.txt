@@ -1,0 +1,14 @@
+p namespace : to set property argument 
+
+c namespace : to set constructor argument 
+
+        <bean id="patientId2" class="com.spring.Spring1.Patient">
+		<constructor-arg name="id" value="1"></constructor-arg>
+		<constructor-arg name="name" value="Patient 2"></constructor-arg>
+
+	</bean>
+
+it would be like ,
+       <bean id="patientId2" class="com.spring.Spring1.Patient"
+             c:id="1" c:name="Patient 2">
+	</bean>

@@ -1,0 +1,54 @@
+Resource can be used Autowired alternatives 
+
+at autowired 
+        @Autowired
+        public void setWriteToConsole(WriteToConsole writeToConsole) {
+		this.writeToConsole = writeToConsole;
+	}
+        @Autowired
+	public void setWriteToLog(WriteToLog writeToLog) {
+		this.writeToLog = writeToLog;
+	}
+
+we can do it by Resource 
+
+        @Resource
+        public void setWriteToConsole(WriteToConsole writeToConsole) {
+		this.writeToConsole = writeToConsole;
+	}
+        @Resource
+	public void setWriteToLog(WriteToLog writeToLog) {
+		this.writeToLog = writeToLog;
+	}
+
+it will add 2 beans which we could have done by manually 
+//log.setWriteToConsole(writeToConsole)
+//log.setWriteToLog(writeToLog)
+
+Now if it is like  
+//log.setWriteToConsole(writeToConsole1)
+//log.setWriteToConsole(writeToConsole2)
+//log.setWriteToLog(writeToLog)
+
+that means if we have 3 beans , then this Resource could not add the bean object , because above situation may arise 
+so avoid this scenario , we can define bean name to add through Resource. 
+
+        <bean id="wirtetolog" class="com.spring.Spring1.WriteToLog"></bean>
+	<bean id="writetoconsole1" class="com.spring.Spring1.WriteToConsole"></bean>
+        <bean id="writetoconsole2" class="com.spring.Spring1.WriteToConsole"></bean>
+	<bean id="logger" class="com.spring.Spring1.Logger"></bean>
+
+spirng bean create 4 objects name , writelolog,writetoconsole1,writetoconsole2 and logger. 
+writetoconsole1,writetoconsole2 are same type object .
+so we need to specify which object should be added by Resource 
+
+        @Resource(name="writetoconsole1")
+        public void setWriteToConsole(WriteToConsole writeToConsole) {
+		this.writeToConsole = writeToConsole;
+	}
+        @Resource
+	public void setWriteToLog(WriteToLog writeToLog) {
+		this.writeToLog = writeToLog;
+	}
+
+thus it will work .

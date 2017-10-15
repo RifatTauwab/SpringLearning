@@ -1,0 +1,201 @@
+1. normally if we create a class , and want to access , then we create an instance 
+of that class 
+
+Patient patient = new Patient();
+patient.speak(); 
+
+something like that. 
+
+Bean just create that instance automatically and stored it in bean container. 
+how could you use that bean? 
+
+1. in pom.xml , just include 2 dependencies 
+spring-bean 
+spring-context
+
+    <dependency>
+    	<groupId>org.springframework</groupId>
+    	<artifactId>spring-beans</artifactId>
+    	<version>3.2.18.RELEASE</version>
+    </dependency>
+    <dependency>
+    	<groupId>org.springframework</groupId>
+    	<artifactId>spring-context</artifactId>
+    	<version>3.2.18.RELEASE</version>
+    </dependency>
+
+2. create a bean in root , 
+just right button on project, new > others > spring > Spring Bean Configuration File 
+name it ,suppose beans.xml and save 
+it would create a file like this 
+
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+</beans>
+
+3. create a class to add this into bean 
+suppose class is "Patient"
+
+4. to add this Patient class into bean , click on beans.xml 
+   select bean > new bean > give ID(suppose patientId) > give class path (suppose com.spring.Spring1.Patient)
+   and save
+   
+5. it would create a bean like 
+
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+
+	<bean id="patientId" class="com.spring.Spring1.Patient"></bean>
+</beans>
+
+6. now create application context . this will create all class bean and stored into bean container 
+
+ApplicationContext context = new FileSystemXmlApplicationContext("beans.xml");
+
+it will open a bean xml file and create class instance 
+
+7. to use these created beans 
+
+Patient patient  = (Patient) context.getBean("patientId");
+patient.speak();
+
+as class is instantiated by spring earlier , so we just get the created bean by class ID
+(we created class id patientId)
+no need to instantiat again 
+
+as the getBean() returns an Patient type object , so we need to casttype it using Patient
+
+8. we need to close the file as it is opened earlier by FileSystemXmlApplicationContext
+((FileSystemXmlApplicationContext) context).close();
+
+
+codes : 
+App.java
+
+package com.spring.Spring1;
+
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.FileSystemXmlApplicationContext;
+
+/**
+ * Hello world!
+ *
+ */
+public class App 
+{
+    public static void main( String[] args )
+    {
+    	ApplicationContext context = new FileSystemXmlApplicationContext("beans.xml");
+    	Patient patient  = (Patient) context.getBean("patientId");
+    	patient.speak();
+        //System.out.println( "Hello World!" );
+    	((FileSystemXmlApplicationContext) context).close();
+    }
+}
+
+Patient.java
+
+package com.spring.Spring1;
+
+public class Patient {
+    
+	public void speak(){
+		System.out.println("Help me");
+	}
+}
+
+beans.xml 
+
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+
+	<bean id="patientId" class="com.spring.Spring1.Patient"></bean>
+</beans>
+
+-------------------------------------------------------------------
+if we want to create bean in class path , not root , then 
+
+1. create a folder in package (com.spring.Spring1.beans)
+2. create a bean like beans.xml 
+3. as we read the xml from class path , then we should use 
+
+ApplicationContext context = new ClassPathXmlApplicationContext("com/spring/Spring1/beans/beans.xml");
+
+instead of FileSystemXmlApplicationContext. 
+
+4. ((FileSystemXmlApplicationContext) context).close();
+
+-------------------------------------------------------------------
+
+change constructor parameter using bean 
+1. suppose we have Patient class and constructor 
+Patient(int id,String name){
+this.id = id;
+this.name=name;
+}
+as spring bydefault create constructor, we can pass some argument from beans to constructor 
+2. click on beans.xml , goto beans
+3. right click on class and select "insert <constructor-arg> element" and give name of the field and value for it.
+after adding the field, the beans should be look like this 
+
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+
+	<bean id="patientId" class="com.spring.Spring1.Patient">
+		<constructor-arg name="id" value="0"></constructor-arg>
+		<constructor-arg name="name" value="default name"></constructor-arg>
+	</bean>
+</beans> 
+
+------------------------------------------------------------------------------
+
+Bean Scope 
+
+normally bean works as a singleton. 
+it creates an object and put it to bean container.everytime it returns the same object. so it is singleton. 
+now if we want to create new object everytime like 
+
+Patient patient1  = (Patient) context.getBean("patientId");
+Patient patient2  = (Patient) context.getBean("patientId");
+(at first patient1 and patient2 are the same object, works like patient2 = patient1) 
+
+if we want to work with patient1 and patient2 separately, then we should define scope = prototype 
+prototype works like clone()
+to change this class bean scope , just click on beans.xml file 
+goto beans > select class Patient > goto scope > select "Prototype" and save 
+
+now the bean should like this :
+        <bean id="patientId" class="com.spring.Spring1.Patient"
+		scope="prototype">
+		<constructor-arg name="id" value="0"></constructor-arg>
+		<constructor-arg name="name" value="default name"></constructor-arg>
+	</bean>
+
+-------------------------------------------------------------------------------
+bean init and destroy 
+
+bean init - we can define init functionality, if bean is inititialized , then this function would be worked. 
+bean destroy - if bean destroy, then this function would work. 
+bean only calls destroy method if bean class scope is singleton , or default 
+
+to add onCreate() and onDestroy() method , then 
+click on beans.xml > beans > select class > give the init function name in init-method field and 
+destroy function name on destroy-method field.(at this case, our init func is onCreate and onDestroy.)
+
+        <bean id="patientId" class="com.spring.Spring1.Patient"
+		destroy-method="onDestroy" init-method="onCreate">
+		<constructor-arg name="id" value="0"></constructor-arg>
+		<constructor-arg name="name" value="default name"></constructor-arg>
+	</bean>

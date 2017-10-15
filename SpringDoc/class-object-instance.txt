@@ -1,0 +1,45 @@
+class-Object-instance
+
+In OO Programming, we often hear of terms like “Class”, “Object” and “Instance”; 
+but what actually is a Class / Object / Instance?
+
+An object is a software bundle of related state and behavior. 
+A class is a blueprint or prototype from which objects are created. 
+An instance is a single and unique unit of a class.
+
+a blueprint (class) represents student (object) with fields like name, age, course (class member). 
+And we have 2 students here, Foo and Bob. 
+So, Foo and Bob is 2 different instances of the class (Student class) that represent object (Student people).
+
+Object
+Real world objects shares 2 main characteristics, state and behavior. 
+Human have state (name, age) and behavior (running, sleeping). 
+Software objects are conceptually similar to real-world objects: 
+they too consist of state and related behavior. 
+An object stores its state in fields and exposes its behavior through methods.
+
+Class
+Class is a “template” / “blueprint” that is used to create objects.
+a class will consists of field, static field, method, static method and constructor. 
+Field is used to hold the state of the class (eg: name of Student object). 
+Method is used to represent the behavior of the class (eg: how a Student object going to stand-up). 
+Constructor is used to create a new Instance of the Class.
+
+Instance
+An instance is a unique copy of a Class that representing an Object. 
+When a new instance of a class is created, the JVM will allocate a room of memory for that class instance.
+
+
+House myHouse = new House(); 
+
+myHouse is an object. 
+myHouse is Instance of House
+so 
+Instance point to an object > object points to the exact memory/space 
+Instance shows us to myHouse > myHouse shows us the memory of object 
+Instance tells about Iffle tower > Iffle Tower tells its in Paris(real world)
+Roll no 1 is an instance but when roll call , if another student proxied ,then we found one real object of roll 1 instance , and 
+other proxied object for instance roll 1. 
+House is a class (template which has no memory allocation)
+
+

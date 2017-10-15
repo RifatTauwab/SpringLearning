@@ -1,0 +1,21 @@
+to enable dispatcher servlet 
+
+right click on project root > new > servlet > click "use an existing Servlet class or JSP" > from browse select "DispatcherServlet" > finish 
+url-pattern would be root(/)
+we can change the default display name and servlet name(DispatcherServlet) 
+
+ <servlet>
+    <description></description>
+    <display-name>notices</display-name>
+    <servlet-name>notices</servlet-name>
+    <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>notices</servlet-name>
+    <url-pattern>/notices</url-pattern>
+  </servlet-mapping>
+
+Now we need to add spring bean configuration file 
+
+right click on WEB-INF > new > others > spring > spring bean configuration file > file name should be dispatcherservletname-servlet.xml 
+here our file name for "notices" dispatcher would be "notices-servlet.xml" 

@@ -1,0 +1,18 @@
+to create web project 
+
+1. goto new > project > dynamic web project > provide project name > next > next > Context root (give a name like "spring")>enable web.xml and save 
+
+Context root : it will be added on url ,http://localhost/spring/*
+
+2. now enable maven 
+
+right click on project root > configure > convert to maven project > group id (com.spring.web) > artifact id (project name ) > finish 
+
+3. add dependencies 
+
+spring-core
+spring-beans
+spring-context
+spring-jdbc
+spring-web
+spring-webmvc

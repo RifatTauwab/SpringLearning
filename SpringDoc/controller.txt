@@ -1,0 +1,59 @@
+controllers are used to communicate with the views. 
+
+to create a controller : 
+right click on project > new > class 
+give a package of the controllers (com.spring.web.controller)
+give a name of that controller class (SpringController) > finish 
+
+thus a java file would be created in project/src folder under com>spring>web>controller subfolder. 
+
+code : 
+package com.spring.web.controller;
+
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+
+@Controller
+public class NoticesController {
+
+	@RequestMapping("/")
+	public String showHome() {
+		System.out.println("from controller");
+		return "home";
+	}
+}
+
+every controller class we need to add @Controller annotation
+to request map , we need to use @RequestMapping("")
+here our request mapping @RequestMapping("/") means if we goto the root url, 
+then showHome() function will work. 
+
+As controller is a java bean , we need to create beans for these controllers. 
+we may have some other controllers. so we can enable auto component-scan for this package 
+so that spring can easily create beans for all controllers.
+
+to do that  , 
+
+1. goro dispatcher-servlet.xml(it is a bean configuration file. here dispatcher is dispatcher servlet name) 
+2. goto namespaces > enable context and mvc
+3. goto context > beans > insert <context:componet-scan> element
+and provide a base-package , our base package would be where our all controllers reside. in that case 
+our base-package "com.spring.web.controller"
+
+and go to the mvc , select beans and enable insert<mvc:annotation-driven> element
+
+so our notices-servlet.xml bean configuration file would be look like this 
+
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-3.2.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.2.xsd">
+
+
+	<context:component-scan base-package="com.spring.web.controller"></context:component-scan>
+	<mvc:annotation-driven></mvc:annotation-driven>
+</beans>

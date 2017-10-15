@@ -1,0 +1,190 @@
+Add Spring Security Filter 
+
+1. from pox xml , import some depedencies 
+spring-security-core
+spring-security-web
+spring-security-config
+
+                <dependency>
+			<groupId>org.springframework.security</groupId>
+			<artifactId>spring-security-core</artifactId>
+			<version>3.2.10.RELEASE</version>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.security</groupId>
+			<artifactId>spring-security-web</artifactId>
+			<version>3.2.10.RELEASE</version>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.security</groupId>
+			<artifactId>spring-security-config</artifactId>
+			<version>3.2.10.RELEASE</version>
+		</dependency>
+2. create a spring bean config file for security like "security-cotext.xml"
+3.from namespapce , enable "security"
+4. from web.xml , just configure again this bean config file 
+     <param-value>
+          classpath:com/spring/web/config/dao-context.xml
+          classpath:com/spring/web/config/service-context.xml
+          classpath:com/spring/web/config/security-context.xml
+      </param-value>
+5. create filter class 
+New > filter > Use Existing Filter class > add org.springframework.web.filter.DelegatingFilterProxy
+6. the filter configuration will be 
+  <filter>
+    <display-name>SpringSecurityFilterChain</display-name>
+    <filter-name>SpringSecurityFilterChain</filter-name>
+    <filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
+  </filter>
+  <filter-mapping>
+    <filter-name>SpringSecurityFilterChain</filter-name>
+    <url-pattern>/*</url-pattern>
+  </filter-mapping>
+
+7. we named this filter as SpringSecurityFilterChain  and further spring use this name to work with filter 
+
+-------------------------------------------------------------------------------------
+Adding Spring Security config from "security-context.xml" 
+
+1. goto bean > sec > beans > insert<security:authentication-manager> element
+2. from authentication-manager > insert <security:authentication-provider> element
+3. as we want to hard code username password from config file ,
+from authentication-provider > insert <securituy:user-service> element
+4. add user 
+from user-service > insert <security:user> element
+
+now if we want to add where and on which url this security manager is applicable , then 
+1. from bean config > sec > beans > insert <security:http> element
+2. from http , we need to enable use-expression : true 
+as we want to give permission for urls by expression
+3. if we want to add form login page , then 
+from http > enable insert <security:form-login> element
+4. to add allowed url pattern 
+http > insert <security:intercept-url> element
+5. to deny all url : 
+from intercept-url : pattern: /** , access : denyAll
+<security:intercept-url pattern="/**" access="denyAll" />
+6. to permit root(/)
+<security:intercept-url pattern="/" access="permitAll" />
+7. to permit if authenticated 
+<security:intercept-url pattern="/NoticeForm" access="isAuthenticated()" />
+8. to permit all resources 
+<security:intercept-url pattern="/static/**" access="permitAll" />
+/static/** comes from dispattcher servlet config xml (notices-servlet.xml) > <mvc:resources location="/resources/" mapping="/static/**" />
+
+so our full config would be 
+
+        <security:authentication-manager>
+		<security:authentication-provider>
+			<security:user-service>
+				<security:user authorities="admin" name="tauwab"
+					password="tauwab" />
+			</security:user-service>
+		</security:authentication-provider>
+	</security:authentication-manager>
+	
+	<security:http use-expressions="true">
+		<security:form-login />
+		<security:intercept-url pattern="/" access="permitAll" />
+                <security:intercept-url pattern="/static/**" access="permitAll" />
+		<security:intercept-url pattern="/NoticeForm" access="isAuthenticated()" />
+		<security:intercept-url pattern="/CreateNotice" access="isAuthenticated()" />
+		<security:intercept-url pattern="/Messages" access="isAuthenticated()" />
+		<security:intercept-url pattern="/ServiceDao" access="isAuthenticated()" />
+		<security:intercept-url pattern="/**" access="denyAll" />
+	</security:http> 
+
+-------------------------------------------------------------------------
+
+Formatting Security Login Form
+
+1. create a jsp file ,
+2 . create a form
+<body onload='document.f.j_username.focus();'>
+<form action='${pageContext.request.contextPath}/j_spring_security_check' method='post'> 
+<input id="j_username" name="j_username" type="text"/>
+<input id="j_password" name="j_password" type="password"/>
+<input name="submit" type="submit" value="Login"/>
+</form></body>
+we can design this form from https://bootsnipp.com/forms
+but we need to keep same action, method, input id/name
+3. to load this , we need to create a controller ,
+
+package com.spring.web.controller;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+@Controller
+public class LoginController {
+	@RequestMapping("/login")
+	public String showHome() {
+		return "login";
+	}
+}
+4. now we need to point this login file from security bean config 
+from security-context.xml>sec>form-login>login-page:/login
+5.and allow this page by adding 
+<security:intercept-url pattern="/login" access="permitAll" />
+
+so our config file would be 
+       <security:http use-expressions="true">
+		<security:form-login login-page="/login" />
+		<security:intercept-url pattern="/login" access="permitAll" />
+		..........................
+		<security:intercept-url pattern="/**" access="denyAll" />
+	</security:http>
+--------------------------------------------------------------------------------
+
+adding authentication failure message 
+as authentication is being handled by spring by itself , 
+so if any authentication failure occured , we can define failure url, means a url that will be executed if any failure 
+
+to do that , 
+goto securoty-context.xml>sec>http>form-login>authentication-failure-url: /login?error=true 
+so if authentication failure , then it will go to /login?error=true url 
+
+--------------------------------------------------------------------------------
+
+JDBC security 
+
+if we want to get username password from database table , then , 
+1. create 2 new table in mysql ,
+   CREATE TABLE IF NOT EXISTS `users` (
+  
+      `username` varchar(60) NOT NULL,
+  
+      `password` varchar(80) NOT NULL,
+  
+      `enabled` tinyint(1) NOT NULL DEFAULT '1'
+
+   );
+   CREATE TABLE IF NOT EXISTS `authorities` (
+  
+      `username` varchar(60) NOT NULL,
+  
+      `authority` varchar(40) NOT NULL
+   
+);
+   INSERT INTO `users` (`username`, `password`, `enabled`) VALUES
+('rta', 'WbLl0', 1);
+   INSERT INTO `authorities` (`username`, `authority`) VALUES
+('rta', 'admin');
+2. we create "users" and "authorities" as spring by default search user data to authenticate.
+3. now from security-context.xml ,sec>beans>authentication-manager> insert <authentication-provider>
+4. from authentication-provider > inser jdbc-user-service 
+5. from jdbc-user-service > data-source-ref : dataSource 
+we found our configured dataSource name from dao-context.xml from
+        <jee:jndi-lookup jndi-name="jdbc/spring" id="dataSource"
+		expected-type="javax.sql.DataSource">
+	</jee:jndi-lookup>
+6. just save and now our login will work for user : rta and password : WbLl0
+----------------------------------------------------------------------------------------
+Spring Log out system
+
+1. spring use "/j_spring_security_logout" to logout functionality 
+2. create a jsp file to forward after successful logout (logout.jsp)
+3. from security-context.xml > sec>beans>http>insert <security:logout> element > logout-successful-url : /logout
+<security:http use-expressions="true">
+<security:logout logout-success-url="/logout" />
+</security:http>
+4. add logout url 
+<p><a href="<c:url value='/j_spring_security_logout' />">Logout</a></p>
